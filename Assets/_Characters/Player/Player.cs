@@ -4,22 +4,20 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Assertions;
 
-// TODO consider re-wiring
-using RPG.CameraUI; 
-using RPG.Core; 
-using RPG.Weapons; 
-
+// TODO consider re-wire...
+using RPG.CameraUI;
+using RPG.Core;
+using RPG.Weapons;
 
 namespace RPG.Characters
 {
     public class Player : MonoBehaviour, IDamageable
     {
-
         [SerializeField] int enemyLayer = 9;
         [SerializeField] float maxHealthPoints = 100f;
         [SerializeField] float damagePerHit = 10f;
-        [SerializeField] Weapon weaponInUse;
-        [SerializeField] AnimatorOverrideController animatorOverrideController;
+        [SerializeField] Weapon weaponInUse = null;
+        [SerializeField] AnimatorOverrideController animatorOverrideController = null;
 
         Animator animator;
         float currentHealthPoints;
@@ -50,7 +48,7 @@ namespace RPG.Characters
         {
             animator = GetComponent<Animator>();
             animator.runtimeAnimatorController = animatorOverrideController;
-            animatorOverrideController["DEFAULT ATTACK"] = weaponInUse.GetAttackAnimClip(); //remove const
+            animatorOverrideController["DEFAULT ATTACK"] = weaponInUse.GetAttackAnimClip(); // remove const
         }
 
         private void PutWeaponInHand()
@@ -82,29 +80,28 @@ namespace RPG.Characters
             if (layerHit == enemyLayer)
             {
                 var enemy = raycastHit.collider.gameObject;
-
                 if (IsTargetInRange(enemy))
                 {
-                    AttackTaget(enemy);
+                    AttackTarget(enemy);
                 }
             }
         }
 
-        private void AttackTaget(GameObject target)
+        private void AttackTarget(GameObject target)
         {
             var enemyComponent = target.GetComponent<Enemy>();
             if (Time.time - lastHitTime > weaponInUse.GetMinTimeBetweenHits())
             {
-                animator.SetTrigger("Attack"); //TODO make const
+                animator.SetTrigger("Attack"); // TODO make const
                 enemyComponent.TakeDamage(damagePerHit);
                 lastHitTime = Time.time;
             }
         }
 
-        private bool IsTargetInRange( GameObject target)
+        private bool IsTargetInRange(GameObject target)
         {
-            float distanceToTarger = (target.transform.position - transform.position).magnitude; 
-            return distanceToTarger <= weaponInUse.GetMaxAttackRange();
+            float distanceToTarget = (target.transform.position - transform.position).magnitude;
+            return distanceToTarget <= weaponInUse.GetMaxAttackRange();
         }
     }
 }

@@ -17,6 +17,7 @@ namespace RPG.Weapons
 
         public float GetMinTimeBetweenHits()
         {
+            // TODO consdier whether we take animation time into account
             return minTimeBetweenHits;
         }
 
@@ -29,11 +30,17 @@ namespace RPG.Weapons
         {
             return weaponPrefab;
         }
-
+        
         public AnimationClip GetAttackAnimClip()
         {
-            attackAnimation.events = new AnimationEvent[0];  // remove animation events so that asset packs cannot cause bugs 
+            RemoveAnimationEvents();
             return attackAnimation;
+        }
+
+        // So that asset packs cannot cause crashes
+        private void RemoveAnimationEvents()
+        {
+            attackAnimation.events = new AnimationEvent[0];
         }
     }
 }
