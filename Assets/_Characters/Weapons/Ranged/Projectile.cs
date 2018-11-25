@@ -5,7 +5,7 @@ using UnityEngine;
 // TODO consider re-wire
 using RPG.Core;
 
-namespace RPG.Weapons
+namespace RPG.Characters
 {
     public class Projectile : MonoBehaviour
     {
@@ -35,18 +35,20 @@ namespace RPG.Weapons
             var layerCollidedWith = collision.gameObject.layer;
             if (shooter && layerCollidedWith != shooter.layer)
             {
-                DamageIfDamageable(collision);
+                //DamageIfDamageable(collision);
             }
         }
 
-        private void DamageIfDamageable(Collision collision)
-        {
-            Component damagableComponent = collision.gameObject.GetComponent(typeof(IDamageable));
-            if (damagableComponent)
-            {
-                (damagableComponent as IDamageable).TakeDamage(damageCaused);
-            }
-            Destroy(gameObject, DESTROY_DELAY);
-        }
+        // todo re-impliment
+
+        //private void DamageIfDamageable(Collision collision)
+        //{
+        //    Component damagableComponent = collision.gameObject.GetComponent(typeof(IDamageable));
+        //    if (damagableComponent)
+        //    {
+        //        (damagableComponent as IDamageable).TakeDamage(damageCaused);
+        //    }
+        //    Destroy(gameObject, DESTROY_DELAY);
+        //}
     }
 }

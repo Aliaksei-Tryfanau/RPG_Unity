@@ -1,36 +1,31 @@
-﻿using System.Collections;
+﻿﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using RPG.Core;
 
 namespace RPG.Characters
 {
-    public struct AbilityUseParams
-    {
-        public IDamageable target;
-        public float baseDamage;
-
-        public AbilityUseParams(IDamageable target, float baseDamage)
-        {
-            this.target = target;
-            this.baseDamage = baseDamage;
-        }
-    }
-
     public abstract class AbilityConfig : ScriptableObject
     {
         [Header("Spcial Ability General")]
         [SerializeField] float energyCost = 10f;
-        [SerializeField] GameObject particlePrefab = null;
-        [SerializeField] AudioClip audioClip = null;
+        [SerializeField] GameObject particlePrefab;
+        [SerializeField] AudioClip[] audioClips;
 
-        protected ISpecialAbility behaviour;
+        protected AbilityBehaviour behaviour;
 
-        abstract public void AttachComponentTo(GameObject gameObjectToattachTo);
+        public abstract AbilityBehaviour GetBehaviourComponent(GameObject objectToAttachTo);
 
-        public void Use(AbilityUseParams useParams)
+        public void AttachAbilityTo(GameObject objectToattachTo)
         {
-            behaviour.Use(useParams);
+            AbilityBehaviour behaviourComponent = GetBehaviourComponent(objectToattachTo);
+            behaviourComponent.SetConfig(this);
+            behaviour = behaviourComponent;
+        }
+
+        public void Use(GameObject target)
+        {
+            behaviour.Use(target);
         }
 
         public float GetEnergyCost()
@@ -43,14 +38,9 @@ namespace RPG.Characters
             return particlePrefab;
         }
 
-        public AudioClip GetAudioClip()
+        public AudioClip GetRandomAbilitySound()
         {
-            return audioClip;
+            return audioClips[Random.Range(0, audioClips.Length)];
         }
     }
-
-	public interface ISpecialAbility
-	{
-		void Use(AbilityUseParams useParams);
-	}
 }

@@ -2,16 +2,12 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-// TODO consider re-wire
-using RPG.Core;
-using RPG.Weapons;
+using RPG.Core; // TODO consider re-wire
 
 namespace RPG.Characters
 {
-    public class Enemy : MonoBehaviour, IDamageable
+    public class Enemy : MonoBehaviour
     {
-
-        [SerializeField] float maxHealthPoints = 100f;
         [SerializeField] float chaseRadius = 6f;
 
         [SerializeField] float attackRadius = 4f;
@@ -23,33 +19,20 @@ namespace RPG.Characters
         [SerializeField] Vector3 aimOffset = new Vector3(0, 1f, 0);
 
         bool isAttacking = false;
-        float currentHealthPoints;
-        AICharacterControl aiCharacterControl = null;
-        Player player = null;
-
-        public float healthAsPercentage { get { return currentHealthPoints / maxHealthPoints; } }
-
-        public void TakeDamage(float damage)
-        {
-            currentHealthPoints = Mathf.Clamp(currentHealthPoints - damage, 0f, maxHealthPoints);
-            if (currentHealthPoints <= 0) { Destroy(gameObject); }
-        }
+        PlayerMovement player = null;
 
         void Start()
         {
-            player = FindObjectOfType<Player>();
-            aiCharacterControl = GetComponent<AICharacterControl>();
-            currentHealthPoints = maxHealthPoints;
+            player = FindObjectOfType<PlayerMovement>();
+        }
+
+        public void TakeDamage(float amount)
+        {
+            // todo remove
         }
 
         void Update()
         {
-            if (player.healthAsPercentage <= Mathf.Epsilon)
-            {
-                StopAllCoroutines();
-                Destroy(this); // To stop enemy behaviour
-            }
-
             float distanceToPlayer = Vector3.Distance(player.transform.position, transform.position);
             if (distanceToPlayer <= attackRadius && !isAttacking)
             {
@@ -66,11 +49,11 @@ namespace RPG.Characters
 
             if (distanceToPlayer <= chaseRadius)
             {
-                aiCharacterControl.SetTarget(player.transform);
+                // aiCharacterControl.SetTarget(player.transform);
             }
             else
             {
-                aiCharacterControl.SetTarget(transform);
+                // aiCharacterControl.SetTarget(transform);
             }
         }
 

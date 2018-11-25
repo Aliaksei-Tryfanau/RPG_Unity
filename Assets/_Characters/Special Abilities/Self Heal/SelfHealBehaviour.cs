@@ -4,39 +4,21 @@ using UnityEngine;
 
 namespace RPG.Characters
 {
-    public class SelfHealBehaviour : MonoBehaviour, ISpecialAbility
+    public class SelfHealBehaviour : AbilityBehaviour
     {
-        SelfHealConfig config = null;
-        Player player = null;
-        AudioSource audioSource = null;
+        PlayerMovement player = null;
 
         void Start()
         {
-            player = GetComponent<Player>();
-            audioSource = GetComponent<AudioSource>();
+            player = GetComponent<PlayerMovement>();
         }
 
-        public void SetConfig(SelfHealConfig configToSet)
+		public override void Use(GameObject target)
 		{
-			this.config = configToSet;
-		}
-
-		public void Use(AbilityUseParams useParams)
-		{
-            player.Heal(config.GetExtraHealth());
-            audioSource.clip = config.GetAudioClip(); // TODO find way of moving audio to parent class
-            audioSource.Play();
+            PlayAbilitySound();
+            var playerHealth = player.GetComponent<HealthSystem>();
+            playerHealth.Heal((config as SelfHealConfig).GetExtraHealth());
             PlayParticleEffect();
-		}
-
-		private void PlayParticleEffect()
-		{
-            var particlePrefab = config.GetParticlePrefab();
-            var prefab = Instantiate(particlePrefab, transform.localPosition, particlePrefab.transform.rotation);
-            prefab.transform.parent = transform;
-			ParticleSystem myParticleSystem = prefab.GetComponent<ParticleSystem>();
-			myParticleSystem.Play();
-			Destroy(prefab, myParticleSystem.main.duration);
 		}
     }
 }

@@ -5,56 +5,32 @@ using RPG.Characters;
 using RPG.Core;
 using System;
 
-public class AreaEffectBehaviour : MonoBehaviour, ISpecialAbility {
+public class AreaEffectBehaviour : AbilityBehaviour {
 
-    AreaEffectConfig config;
-	AudioSource audioSource = null;
-
-    void Start()
+    public override void Use(GameObject target)
     {
-        audioSource = GetComponent<AudioSource>();
-    }
-
-    public void SetConfig(AreaEffectConfig configToSet)
-    {
-        this.config = configToSet;
-    }
-
-    public void Use(AbilityUseParams useParams)
-    {
-        DealRadialDamage(useParams);
+        PlayAbilitySound();
+        DealRadialDamage();
         PlayParticleEffect();
-		audioSource.clip = config.GetAudioClip();
-		audioSource.Play();
     }
 
-    private void PlayParticleEffect()
-    {
-        var particlePrefab = config.GetParticlePrefab();
-        var prefab = Instantiate(particlePrefab, transform.position, particlePrefab.transform.rotation);
-        // TODO decide if particle system attaches to player
-        ParticleSystem myParticleSystem = prefab.GetComponent<ParticleSystem>();
-        myParticleSystem.Play();
-        Destroy(prefab, myParticleSystem.main.duration);
-    }
-
-    private void DealRadialDamage(AbilityUseParams useParams)
+    private void DealRadialDamage()
     {
         // Static sphere cast for targets
         RaycastHit[] hits = Physics.SphereCastAll(
             transform.position,
-            config.GetRadius(),
+            (config as AreaEffectConfig).GetRadius(),
             Vector3.up,
-            config.GetRadius()
+            (config as AreaEffectConfig).GetRadius()
         );
 
         foreach (RaycastHit hit in hits)
         {
-            var damageable = hit.collider.gameObject.GetComponent<IDamageable>();
-            bool hitPlayer = hit.collider.gameObject.GetComponent<Player>();
+            var damageable = hit.collider.gameObject.GetComponent<HealthSystem>();
+            bool hitPlayer = hit.collider.gameObject.GetComponent<PlayerMovement>();
             if (damageable != null && !hitPlayer)
             {
-                float damageToDeal = useParams.baseDamage + config.GetDamageToEachTarget(); // TODO ok Rick?
+                float damageToDeal = (config as AreaEffectConfig).GetDamageToEachTarget();
                 damageable.TakeDamage(damageToDeal);
             }
         }
