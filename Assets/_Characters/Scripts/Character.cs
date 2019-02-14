@@ -11,6 +11,7 @@ namespace RPG.Characters
         [Header("Animator")] [SerializeField] RuntimeAnimatorController animatorController;
         [SerializeField] AnimatorOverrideController animatorOverrideController;
         [SerializeField] Avatar characterAvatar;
+        [SerializeField] [Range (.1f, 1f)] float animatorForwardCap = 1f;
 
         [Header("Audio")]
         [SerializeField] float audioSourceSpatialBlend = 0.5f;
@@ -70,7 +71,11 @@ namespace RPG.Characters
 
         void Update()
         {
-            if (navMeshAgent.remainingDistance > navMeshAgent.stoppingDistance && isAlive)
+            if (!navMeshAgent.isOnNavMesh)
+            {
+                Debug.LogError(gameObject.name + " uh oh this guy is not on the navmesh");
+            }
+            else if (navMeshAgent.remainingDistance > navMeshAgent.stoppingDistance && isAlive)
             {
                 Move(navMeshAgent.desiredVelocity);
             }
@@ -80,14 +85,24 @@ namespace RPG.Characters
             }
         }
 
+        public float GetAnimSpeedMultiplier()
+        {
+            return animator.speed;
+        }
+
         public void Kill()
         {
             isAlive = false;
         }
 
-        public void SetDesination(Vector3 worldPos)
+        public void SetDestination(Vector3 worldPos)
         {
             navMeshAgent.destination = worldPos;
+        }
+
+        public AnimatorOverrideController GetOverrideController()
+        {
+            return animatorOverrideController;
         }
 
         void Move(Vector3 movement)
@@ -112,7 +127,7 @@ namespace RPG.Characters
 
         void UpdateAnimator()
         {
-            animator.SetFloat("Forward", forwardAmount, 0.1f, Time.deltaTime);
+            animator.SetFloat("Forward", forwardAmount * animatorForwardCap, 0.1f, Time.deltaTime);
             animator.SetFloat("Turn", turnAmount, 0.1f, Time.deltaTime);
             animator.speed = animationSpeedMultiplier;
         }
